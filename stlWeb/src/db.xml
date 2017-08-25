@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<server>
+<ip_address>202.116.46.229</ip_address>
+<port>3306</port>
+<database>tsp</database>
+</server>

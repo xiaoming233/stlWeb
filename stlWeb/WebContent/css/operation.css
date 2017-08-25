@@ -1,0 +1,26 @@
+@CHARSET "UTF-8";
+.operation{
+	height:100%;width:20%;
+	float:left;
+}
+.head{
+	background:#00bbff;
+	height:80px;width:100%;
+	color:#ffffff;
+	font-size:30px;
+	text-align:center;
+	overflow:hidden; 
+	line-height:80px  
+}
+
+.head-title{
+	height:100%;
+	width:100%;
+	color:#ffffff
+}
+head-login_register{
+	float:left;
+	height:50px;
+	width:100%;
+	text-align:center;
+}

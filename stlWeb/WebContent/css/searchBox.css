@@ -1,0 +1,7 @@
+.searchbox_casing { width :452px;overflow :hidden;height :40px;}
+.searchbox_casing .searchbox_box { border:none; text-indent:5px; width:370px; height:40px; overflow:hidden; line-height:31px;/* background:url("images/txt_bg.gif") no-repeat 0 -64px; */}
+.searchbox_casing .searchbox_btn { border:none; cursor:pointer; width:57px; height:39px; font-size:14px;  background:url("/stlWeb/image/search.png") repeat;  text-align:center; color:#00ff40; padding-top:0px;}
+.searchbox_pretender { list-style:none; padding:0; font-size:12px; margin:0; width:348px; display:none; position:absolute; z-index:1000; border:solid 2px #ADADAC; background:#fff;}
+.searchbox_pretender li { padding:2px 0 2px 5px; list-style:none; margin:0;}
+.searchbox_pretender li.curr { background:#FDC451; }
+.searchbox_pretender li.hover { background:#FDC451; cursor:pointer;}
