@@ -1,21 +1,17 @@
-package com.ljm.servlet;
+package com.ljm.core;
 
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import com.ljm.entity.LngLat;
+import com.ljm.entity.Point;
 import com.ljm.getDistance.*;
 import ljm.Tsp.Ant.*;
 import ljm.Tsp.Greedy.TspGreedy;
-public class test1 {
+public class GetPathByID extends GetPathBase{
 
-	private int[] pathAnt;
-	private int[] pathGreedy;
-	private LngLat []points;
-	private int distanceAnt;
-	private int distanceGreedy;
+
 
 	public  void setPoints() {
 		// TODO Auto-generated method stub
@@ -36,8 +32,8 @@ public class test1 {
 		 Random random = new Random();
 		 int i=(int)(2*Math.random());//随机选取一个出发点的index
 		 //根据选取的index选择点
-		 points=new LngLat [6];
-		 LngLat lngLat=new LngLat(origins[i]);
+		 points=new Point [6];
+		 Point lngLat=new Point(origins[i]);
 		 points[0]=lngLat;
 		//随机选取6个目标点的index
 		 int []a=new int[6];
@@ -62,7 +58,7 @@ public class test1 {
 
 		 for(int j=1;j<6;j++)
 			{
-			 lngLat=new LngLat(goals[a[j]]);
+			 lngLat=new Point(goals[a[j]]);
 			 points[j]=lngLat;
 			}
 		 String [] selectedPoints=new String [6];
@@ -70,59 +66,17 @@ public class test1 {
 		 for(int j=0;j<6;j++)
 			{
 			 selectedPoints[j]=points[j].getLat()+","+points[j].getLng();//构成baidu map api的地点要求 “lat,lng”
-			 selectedPointsName[j]=points[j].getName();
+			 selectedPointsName[j]=points[j].getLabel();
 			}
 		 int[][]distance=new int[6][6];
 		 GetDistance getDistance=new GetDistance();
 		 distance=getDistance.getDistance_ThroughBaiduMapAPI(selectedPoints);
-//		 for(int j=0;j<6;j++)
-//		 {
-//			 for(int k=0;k<6;k++)
-//			 {
-//				 System.out.print(distance[j][k]);
-//				 System.out.print(" ");
-//			 } 
-//			 System.out.println();
-//		 }
 		 TspAnt tspAnt=new TspAnt(selectedPointsName, distance);
 		 pathAnt=tspAnt.tspTest();
-//		 TspGenetic tspGenetic=new TspGenetic(selectedPointsName, distance);
-//		 tspGenetic.tspTest();
 		 TspGreedy tspGreedy=new TspGreedy(selectedPointsName, distance);
 		 pathGreedy=tspGreedy.tspTest();
 		 distanceAnt=tspAnt.getDiasance();
 		 distanceGreedy=tspGreedy.getDiasance();
 	}
-	public int[] getPathAnt() {
-		return pathAnt;
-	}
-	public int[] getPathGreedy() {
-		return pathGreedy;
-	}
-	public LngLat[]getPoints()
-	{
-		return points;
-	}
-	public List<LngLat> getPathAntInfo() {
-		List<LngLat> pathInfo=new ArrayList<LngLat>();
-		for (int i = 0; i < pathAnt.length; i++) {
-			pathInfo.add(points[pathAnt[i]]);
-		}
-		return pathInfo;
-		
-	}
-	public List<LngLat> getPathGreedyInfo() {
-		List<LngLat> pathInfo=new ArrayList<LngLat>();
-		for (int i = 0; i < pathGreedy.length; i++) {
-			pathInfo.add(points[pathGreedy[i]]);
-		}
-		return pathInfo;
-		
-	}
-	public int getDistanceAnt() {
-		return distanceAnt;
-	}
-	public int getDistanceGreedy() {
-		return distanceGreedy;
-	}
+	
 }

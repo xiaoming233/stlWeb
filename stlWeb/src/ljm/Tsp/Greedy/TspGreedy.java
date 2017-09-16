@@ -19,36 +19,7 @@ public class TspGreedy {
 	}
 	
 	private void init() {
-
-//        distance=new int [cityNum][cityNum];
 		path=new int[cityNum+1];
-
-//		GetDistance getDistance=new GetDistance();
-//
-//         for (int i = 0; i < cityNum; i++) {
-//			distance[i][i]=0;
-//			int j = i+1;
-//			while ( j < cityNum) {
-//					distance[i][j]=	distance[j][i]=getDistance.getDistance_ThroughBaiduMapAPI(goals[i], goals[j], "广州");
-//				j++;
-//			}
-//		}
-
-//		System.out.print("初始地点：");
-//		for(String str:goals)
-//		{
-//			System.out.print(str+" ");
-//		}
-//		System.out.println("");
-//		for(int n=0;n<cityNum;n++)
-//		{
-//			for(int m=0;m<cityNum;m++)
-//			{
-//				System.out.print(distance[n][m]+" ");				
-//			}
-//			System.out.println("");
-//		}
-
 		col = new int[cityNum];
 		col[0] = 0;
 		for (int i = 1; i < cityNum; i++)
@@ -58,15 +29,14 @@ public class TspGreedy {
 			row[j] = 1;
 	}
 
-	public void solve() {
+	private void solve() {
 		int[] temp = new int[cityNum];
 		int s = 0;// 计算距离
 		int i = 0;// 当前城市
 		int j = 0;// 下一个城市
 		int n=1;
 		path[0]=0;
-		// 默认从0开始
-		
+		// 默认从0开始		
 		while (row[i] == 1) {
 			// 复制一行
 			for (int k = 0; k < cityNum; k++) {
@@ -79,7 +49,6 @@ public class TspGreedy {
 			// 找出下一节点
 			row[i] = 0;// 行置0，表示已经选过                 
 			col[j] = 0;// 列0，表示已经走过
-
 			path[n]=j;
 			// System.out.println(i + "==>" + j);
 			// System.out.println(distance[i][j]);

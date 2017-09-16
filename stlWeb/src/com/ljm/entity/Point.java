@@ -5,11 +5,11 @@ package com.ljm.entity;
  * @author ljm
  *
  */
-public class LngLat {
+public class Point {
 	/**
 	 *地名
 	 */
-	 String name;
+	 String label;
 	/**
 	 * 经度
 	 */
@@ -18,11 +18,21 @@ public class LngLat {
 	 * 纬度
 	 */
 	String lat;
-	public String getName() {
-		return name;
+	public Point() {
+		// TODO Auto-generated constructor stub
 	}
-	public void setName(String name) {
-		this.name = name;
+	public Point(String label,String lng,String lat) {
+		// TODO Auto-generated constructor stub
+		super(); 
+		this.label=label;
+		this.lng=lng;
+		this.lat=lat;
+	}
+	public String getLabel() {
+		return label;
+	}
+	public void setLabel(String label) {
+		this.label = label;
 	}
 	public String getLng() {
 		return lng;
@@ -36,9 +46,9 @@ public class LngLat {
 	public void setLat(String lat) {
 		this.lat = lat;
 	}
-	public LngLat(String [] str)
+	public Point(String [] str)
 	{
-		this.name=str[0];
+		this.label=str[0];
 		this.lat=str[1];
 		this.lng=str[2];
 	}

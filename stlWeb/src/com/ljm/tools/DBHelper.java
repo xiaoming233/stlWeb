@@ -7,17 +7,23 @@ import java.sql.SQLException;
 
   
 public class DBHelper {  
-    public static final String url = "jdbc:mysql://202.116.46.229:3306/tsp?useUnicode=true&characterEncoding=utf8";  
-    public static final String name = "com.mysql.jdbc.Driver";  
-    public static final String user = "root";  
-    public static final String password = "root";  
+    public static String url = null;  
+    public static String classname = null;  
+    public static String user = null;  
+    public static String password = null;  
   
     public Connection conn = null;  
     public PreparedStatement pst = null;  
-  
+    static {  
+    	PropertiesUtils.loadFile("db.properties");  
+    	url = PropertiesUtils.getPropertyValue("url"); 
+    	classname  = PropertiesUtils.getPropertyValue("classname");
+    	user = PropertiesUtils.getPropertyValue("user");  
+    	password = PropertiesUtils.getPropertyValue("password");  
+    }
     public DBHelper() {  
         try {  
-            Class.forName(name);//ָ����������  
+            Class.forName(classname);//ָ����������  
             conn = DriverManager.getConnection(url, user, password);//��ȡ����  
             pst = conn.prepareStatement("");//׼��ִ�����  
         } catch (Exception e) {  

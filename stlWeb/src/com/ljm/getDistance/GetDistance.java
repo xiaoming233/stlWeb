@@ -27,8 +27,15 @@ public class GetDistance {
     url.append("&destinations=");
     url.append(origin);
     url.append("&ak=gA7XfBujUTeN0Qnk3tr7jqpwngjcw1or");
-    String json = loadJSON(url.toString());
-    JSONObject obj = JSONObject.parseObject(json);
+    String json = requstDistance(url.toString());
+    int tryTime=0;
+    if (json==null&&tryTime<5) {
+    	json = requstDistance(url.toString());
+    	tryTime++;
+	} else {
+		System.out.println(json);
+	}
+    JSONObject obj = JSONObject.parseObject(json);   
     int l=points.length;
     int [][]distance=new int[l][l];
     int n=0;
@@ -39,22 +46,30 @@ public class GetDistance {
 			distance[i][j]=n++;
 		}
 	}
-    if(obj.get("status").toString().equals("0")){
-    	JSONArray jsonArray=obj.getJSONArray("result");;
-    	for(int i=0;i<l;i++)
-    	{
-    		distance[i][i]=0;
-    		for(int j=i+1;j<l;j++)
-    		{
-    			distance[i][j]=distance[j][i]=jsonArray.getJSONObject(distance[i][j]).getJSONObject("distance").getIntValue("value");
-    		}
-    	}
+    try{
+    	if(obj.get("status").toString().equals("0")){
+        	JSONArray jsonArray=obj.getJSONArray("result");;
+        	for(int i=0;i<l;i++)
+        	{
+        		distance[i][i]=0;
+        		for(int j=i+1;j<l;j++)
+        		{
+        			distance[i][j]=distance[j][i]=jsonArray.getJSONObject(distance[i][j]).getJSONObject("distance").getIntValue("value");
+        		}
+        	}
+        }
     }
+    catch (Exception e) {
+		// TODO: handle exception
+    	System.out.println(json);
+    	System.out.println(e.getMessage());
+	}
        	return distance;
+       	
       
 
 	}
-	public static String loadJSON (String url) {
+	private static String requstDistance (String url) {
 	       StringBuilder json = new StringBuilder();
 	       try {
 	           URL url2 = new URL(url);
@@ -72,4 +87,5 @@ public class GetDistance {
 	       return json.toString();
 
 	   }
+
 }

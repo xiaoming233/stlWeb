@@ -24,3 +24,6 @@ head-login_register{
 	width:100%;
 	text-align:center;
 }
+ul{
+	overflow:auto;
+}

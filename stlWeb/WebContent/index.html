@@ -12,32 +12,66 @@
 		#r-result{position:absolute;left:700px;top:0;}
 	</style>
 	<link href="css/searchBox.css" rel="stylesheet" type="text/css" />
+	<!-- <link href="css/index.css" rel="stylesheet" type="text/css" /> -->
 	<link href="css/bootstrap.css" rel="stylesheet" /> 
 	<link href="css/login-register.css" rel="stylesheet" /> 
 	<link href="css/operation.css" rel="stylesheet" /> 
-	<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=E06eb9d756d0eafc722effb355657b4c"></script>
-	<script type="text/javascript" src="/stlWeb/js/LuShu_min.js"></script>
-	<script type="text/javascript" src="/stlWeb/js/searchBox.js"></script>
+	<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=foHWdNIl2a33kfOLAXUMUaG0vVO2HavD"></script>
+	<script type="text/javascript" src="/stlWeb/js/LuShu.js"></script>
+	<script type="text/javascript" src="/stlWeb/js/searchBox.js?v=101"></script>
 	<script src="js/jquery-1.10.2.js"></script>
 	<script src="js/bootstrap.js" type="text/javascript"></script>
-	<script src="js/login-register.js" type="text/javascript"></script> 
+	<script src="js/login-register.js?v=7.4" type="text/javascript"></script> 
+	<script src="js/index.js?v=2.7" type="text/javascript"></script> 
 	<title>快快配送路径分析系统</title>
 </head>
-<body onload="sendRequest()">
+<body>
+<!-- <body  onload="sendRequest()" > -->
 <div class="operation">
     <div class="head">
-	<span>快快配送</span>
+		<span>快快配送</span>
 	</div>
-      <div style="height:20%;width:100%; "></div>
-		<div class="row">
-            <div class="col-sm-4"></div>
-            <div class="col-sm-4">
-                 <a class="btn big-login" data-toggle="modal" href="javascript:void(0)" onclick="openLoginModal();">登 录</a>
-                 <div style="height:10px;width:100%; "></div>
-                 <a class="btn big-register" data-toggle="modal" href="javascript:void(0)" onclick="openRegisterModal();">注 册</a></div>
-            <div class="col-sm-4"></div>
+		<div class="login" style="height:30px;width:100%;">
+			<div id="user-login" style="float:right">
+			<a href="javascript:void(0)" onclick="openLoginModal()">登 录</a>
+			<span>&nbsp&nbsp</span>
+			<a  href="javascript:void(0)" onclick="openRegisterModal()">注 册</a>
+			<span>&nbsp&nbsp</span>
+		   </div>
+		   <div id="user-info" style="float:right">
+		   <!-- <div  id="user-login-name" style="display:none;"></div>
+			<a href="javascript:void(0)" onclick="newPath()">新增路线</a>
+			<span>&nbsp&nbsp</span>
+			<a  href="javascript:void(0)" onclick="historyPath()">历史记录</a>
+			<span>&nbsp&nbsp</span> -->
+		   </div>
+		</div>
+        <hr style="height:6px;border:none;border-top:3px double #00bbff;" />
+        
+        <!-- <div style="float:left;width:10%;"></div> -->
+        <div class="new-path" id="new-path" style="float:right;width:90%;">
+	        <div class="startPoint" id="startPoint" style="height:50px;width:90%;"><b>始发点：</b></div>
+	        <hr style="border:1px solid #00bbff"/>
+	        <div class="destinationPoints" id="destinationPoints" style="width:90%;"><p><b>配送点：</b></p></div>
         </div>
-        <div class="history" id="history" style="display:none"></div>	
+        <div class="history" id="history" style="float:right;width:90%;display:none;">
+            <div><span>&nbsp&nbsp</span><p><b>历史配送路径:</b></p></div>
+            <div id="history-path"></div>
+        </div>        
+        <div style="height:50px;width:100%;">	        
+	        <div style="float:left;height:50px;width:10%;"></div>
+	        <div style="float:right;height:50px;width:90%;">
+	        <hr style="height:6px;border:none;border-top:3px double #00bbff;" />
+	        <div class="select" id="select" >
+	            <label><input id="customerfirst" name="radio" type="radio" value="客户优先" onchange="selectChange()" checked="true"/>客户优先 </label> 
+		        <label><input id="sellerfirst" name="radio" type="radio" value="商家优先" onchange="selectChange()" />商家优先 </label> 
+	        </div>
+	        <input class="btn btn-default btn-login" type="button" value="清除结果" onclick="clearOverlays()">
+	        <input class="btn btn-default btn-login" type="button" value="获取路径" onclick="doTspbyPost()">
+	        <hr style="height:6px;border:none;border-top:3px double #00bbff;" />
+	         <div id="result" ></div>
+	        </div>
+	     </div>	
 </div>
 <div id="login_register">
 <div class="modal fade login" id="loginModal">
@@ -52,8 +86,8 @@
                              <div class="content">
                                 <div class="error"></div>
                                 <div class="form loginBox">
-                                    <form method="post" action="/login" accept-charset="UTF-8">
-                                    <input id="email" class="form-control" type="text" placeholder="邮箱" name="email">
+                                    <form  accept-charset="UTF-8">
+                                    <input id="username" class="form-control" type="text" placeholder="用户名" name="username">
                                     <input id="password" class="form-control" type="password" placeholder="密码" name="password">
                                     <input class="btn btn-default btn-login" type="button" value="登 录" onclick="loginAjax()">
                                     </form>
@@ -63,12 +97,12 @@
                         <div class="box">
                             <div class="content registerBox" style="display:none;">
                              <div class="form">
-                                <form method="post" html="{:multipart=>true}" data-remote="true" action="/register" accept-charset="UTF-8">
-                                <input id="nickname" class="form-control" type="text" placeholder="昵称" name="nickname">
-                                <input id="email" class="form-control" type="text" placeholder="邮箱" name="email">
-                                <input id="password" class="form-control" type="password" placeholder="密码" name="password">
+                                <form  accept-charset="UTF-8">
+                                <input id="username-r" class="form-control" type="text" placeholder="用户名" name="username-r">
+                                <input id="email" class="form-control" type="text" placeholder="邮箱" name="emai">
+                                <input id="password-r" class="form-control" type="password" placeholder="密码" name="password-r">
                                 <input id="password_confirmation" class="form-control" type="password" placeholder="确认密码" name="password_confirmation">
-                                <input class="btn btn-default btn-register" type="submit" value="注 册" name="commit">
+                                <input class="btn btn-default btn-register" type="button" value="注 册" name="commit" onclick="registAjax()">
                                 </form>
                                 </div>
                             </div>
@@ -94,253 +128,444 @@
 	<div id="map1"></div>
 	</div>
 		 
-	<div id="result" ></div>
+	
 
 <!-- <button id="next">next</button>   -->
- <p name="remarks" id="remarks" ></p>
+
 </body>
 </html>
 <script type="text/javascript">
-var pointsNameAnt=new Array();
-var pointsNameGreedy=new Array();
-var pointsLocationAnt=new Array();
-var pointsLocationGreedy=new Array();
- 
-//字符串转json对象
-function strToJson(str) {
-	return JSON.parse(str);
-}
-
+	var pointsNameAnt=null;
+	var pointsNameGreedy=null;
+	var pointsLocationAnt=null;
+	var pointsLocationGreedy=null;
+	var startPoint=null;
+	var destinationPoints=null;
+	var cityName='广州';
+	var flag=false;
+	//字符串转json对象
+	function strToJson(str) {
+		return JSON.parse(str);
+	}
+	
 	// 百度地图API功能
 	var zoom = 14;
 	var map = new BMap.Map("map1");
 	map.centerAndZoom(new BMap.Point(113.358409, 23.145426), 16);
-	 map.enableScrollWheelZoom(true);  
-	 map.addControl(new BMap.NavigationControl());
-/* 	 map2.centerAndZoom(new BMap.Point(113.358409, 23.145426), 16);
-	 map2.enableScrollWheelZoom(true);   */
-	 function ZoomControl(){
-		  // 默认停靠位置和偏移量
-		  this.defaultAnchor = BMAP_ANCHOR_TOP_LEFT;
-		  this.defaultOffset = new BMap.Size(300, 55);
-		}
-	    ZoomControl.prototype = new BMap.Control();
-
-		// 自定义控件必须实现自己的initialize方法,并且将控件的DOM元素返回
-		// 在本方法中创建个div元素作为控件的容器,并将其添加到地图容器中
-		ZoomControl.prototype.initialize = function(map){
-		  // 创建一个DOM元素
-		  var div = document.createElement("div");
-		  // 设置样式
-		  div.style.cursor = "pointer";
-		  div.style.border = "1px solid gray";
-		  div.style.backgroundColor = "white";
-
-	      var b1 = document.createElement("input");
-	            b1.type = "button";
-	            b1.value = "next";
-	            b1.onclick = function () {
-	            	 showPath(); 
-	            }
-	         div.appendChild(b1);
-	         var b2 = document.createElement("input");
-	            b2.type = "button";
-	            b2.value = "run";
-	            b2.onclick = function () {
-	            	lushu1.start();
-	        	    lushu2.start();
-	        	    lushu1.hideInfoWindow();
-	        	    lushu2.showInfoWindow();
-	            }
-	         div.appendChild(b2);
-	         var b3 = document.createElement("input");
-	            b3.type = "button";
-	            b3.value = "pause";
-	            b3.onclick = function () {
-	            	 lushu1.pause();
-	         	    lushu2.pause();
-	            }
-	         div.appendChild(b3);
-		  // 添加DOM元素到地图中
-		  map.getContainer().appendChild(div);
-		  // 将DOM元素返回
-		  return div;
-		}
-		// 创建控件
-		var myZoomCtrl = new ZoomControl();
-		// 添加到地图当中
-		map.addControl(myZoomCtrl);
+	map.enableScrollWheelZoom(true);  
+	map.addControl(new BMap.NavigationControl());
+	//map2.centerAndZoom(new BMap.Point(113.358409, 23.145426), 16);
+	//map2.enableScrollWheelZoom(true);  
 		
-		var searchbox = new SearchBox({anchor:BMAP_ANCHOR_TOP_LEFT});// 创建搜索控件对象，并设置它停靠在地图的左上位置
-        searchbox.city = "广州市";// 在北京市查找数据
-        searchbox.callback = function(point){// 设置回调函数
-            // 如果找到地址了就在该坐标添加一个标记
-            if(point)
-            {
-                map.centerAndZoom(point, zoom);
-                var marker = new BMap.Marker(point);
-                map.addOverlay(marker);
-            	marker.addContextMenu(markerMenu);
-               	markerMenu.addItem(new BMap.MenuItem('删除',removeMarker.bind(marker)));
-            }
-            else
-            {
-                alert("没查到数据！");
-            }
-        }
-        map.addControl(searchbox);  // 将搜索控件添加到地图上
-        var removeMarker = function(e,ee,marker){
-    		map.removeOverlay(marker); 
-            }
-       	var markerMenu=new BMap.ContextMenu();
+		
+	function ZoomControl(){
+	  // 默认停靠位置和偏移量
+	  this.defaultAnchor = BMAP_ANCHOR_TOP_LEFT;
+	  this.defaultOffset = new BMap.Size(300, 55);
+	}
+	ZoomControl.prototype = new BMap.Control();
+	
+	// 自定义控件必须实现自己的initialize方法,并且将控件的DOM元素返回
+	// 在本方法中创建个div元素作为控件的容器,并将其添加到地图容器中
+	ZoomControl.prototype.initialize = function(map){
+	  // 创建一个DOM元素
+		var div = document.createElement("div");
+	    div.id="lushuOpts"
+		// 设置样式
+		div.style.cursor = "pointer";
+		div.style.border = "1px solid gray";
+		div.style.backgroundColor = "white";
+		div.style.visibility="hidden";
+		var b1 = document.createElement("input");
+		      b1.type = "button";
+		      b1.value = "模拟";
+		      b1.onclick = function () {
+		    	  var radios=document.getElementsByName("radio");
+		    	  var id;
+			   	  for(var i=0;i<radios.length;i++){
+			   	    if(radios.item(i).checked) {
+			   	     id=radios.item(i).getAttribute("id"); 
+			   	     if (id=="customerfirst") {
+			   	    	 lushu2.start();
+			   		} else {
+			   			lushu1.start();
+			   		}
+			   	     break;
+			   	    }
+			   	    else{
+			   	     continue;
+			   	    }
+			   	  }  
+		      };
+		div.appendChild(b1);
+		 var b2 = document.createElement("input");
+		    b2.type = "button";
+		    b2.value = "暂停";
+		    b2.onclick = function () {
+		    	var radios=document.getElementsByName("radio");
+		    	  var id;
+			   	  for(var i=0;i<radios.length;i++){
+			   	    if(radios.item(i).checked) {
+			   	     id=radios.item(i).getAttribute("id"); 
+			   	     if (id=="customerfirst") {
+			   	    	 lushu2.pause();
+			   		} else {
+			   			lushu1.pause();
+			   		}
+			   	     break;
+			   	    }
+			   	    else{
+			   	     continue;
+			   	    }
+			   	  }  
+		    }
+		 div.appendChild(b2);
+		 var b3 = document.createElement("input");
+		    b3.type = "button";
+		    b3.value = "结束";
+		    b3.onclick = function () {
+		    	var radios=document.getElementsByName("radio");
+		    	  var id;
+			   	  for(var i=0;i<radios.length;i++){
+			   	    if(radios.item(i).checked) {
+			   	     id=radios.item(i).getAttribute("id"); 
+			   	     if (id=="customerfirst") {
+			   	    	 lushu2.stop();
+			   		} else {
+			   			lushu1.stop();
+			   		}
+			   	     break;
+			   	    }
+			   	    else{
+			   	     continue;
+			   	    }
+			   	  }  
+		    }
+		 div.appendChild(b3);
+		// 添加DOM元素到地图中
+		 map.getContainer().appendChild(div);
+		// 将DOM元素返回
+		 return div;
+	}
+	// 创建控件
+	var myZoomCtrl = new ZoomControl();
+	// 添加到地图当中
+	map.addControl(myZoomCtrl);
+	
+	var searchbox = new SearchBox({anchor:BMAP_ANCHOR_TOP_LEFT});// 创建搜索控件对象，并设置它停靠在地图的左上位置
+	var myCity = new BMap.LocalCity();
+	myCity.get(function(result){
+		cityName=result.name;
+		searchbox.city = cityName;
+		map.setCenter(cityName);
+		addContextMenu();
+	});
+	function addContextMenu(){
+		var menu = new BMap.ContextMenu();
+		menu.addItem(new BMap.MenuItem('以此为起点',function(p){
+			addStartPoint(p);
+			}));
+		menu.addItem(new BMap.MenuItem('以此为配送点',function(p){
+			addDestinationPoints(p);
+			}));
+		map.addContextMenu(menu);
+	}
+	 searchbox.callback = function(point,key){// 设置回调函数
+	      // 如果找到地址了就在该坐标添加一个标记
+	      if(point)
+	      {
+			map.centerAndZoom(point, zoom);
+			addMarker(point,key);
+	      }
+	      else
+	      {
+	          alert("没查到数据！");
+	      }
+	  }
+	function addMarker(point,key)
+	{
+		var markerMenu=new BMap.ContextMenu();
+		var marker = new BMap.Marker(point);  
+		map.addOverlay(marker);
+		marker.addContextMenu(markerMenu); 
+		marker.enableDragging();
+		var label= new BMap.Label(key, {offset:new BMap.Size(20,-10),position:point });
+		label.setTitle(key)
+		marker.setLabel(label);
+		marker.addEventListener("dragend", function(e){//拖动marker的事件
+			var point=e.point;
+			var options={
+					 poiRadius:50,
+					 numPois:1
+			 };
+			new BMap.Geocoder().getLocation(point, function(result) {
+				var poi=result.surroundingPois[0];
+				label.setContent(poi?poi.title:result.address);
+				if (marker==startPoint)
+					{setStartPointText();}
+				else{setDestinationPointsText();}
+			     }, options);
+		});
+		markerMenu.addItem(new BMap.MenuItem('删除',removeMarker.bind(marker)));
+		markerMenu.addItem(new BMap.MenuItem('以此为始发点',setStartPoint.bind(marker)));
+		markerMenu.addItem(new BMap.MenuItem('以此为配送点',setDestinationPoints.bind(marker)));
+		return marker;
+	}
+	function setStartPoint(e,ee,marker){
+		startPoint=marker;
+		setStartPointText();
+		setDestinationPointsText();
+		flag=true;
 
-/*         var arrSelectPoint=[];
-        map.addEventListener("rightclick",function(e){
-        	arrSelectPoint.push( new BMap.Point(e.point.lng , e.point.lat));
-    	}); */
-/*         var removeMarker = function(e,ee,marker){
-    		map.removeOverlay(marker); */
-    	
-        /* var menu = new BMap.ContextMenu();
-    	var txtMenuItem = [
-    		{
-    			text:'添加',
-    			callback:function(e){
-    				var marker = new BMap.Marker(arrSelectPoint[0]);
-    				map.addOverlay(marker);}
-    		},
-    		{
-    			text:'删除',
-    			callback:removeMarker.bind(marker)
-    		}
-    	];
-    	for(var i=0; i < txtMenuItem.length; i++){
-    		menu.addItem(new BMap.MenuItem(txtMenuItem[i].text,txtMenuItem[i].callback,100));
-    	}
-    	map.addContextMenu(menu); */
+	}
+	function setDestinationPoints(e,ee,marker){
+		if (marker==startPoint){
+			startPoint=null;
+			var startdiv = document.getElementById("startPoint");
+			startdiv.innerHTML="<b>始发点：</b>";
+			}
+		setDestinationPointsText();
+		flag=true;
+
+	}
+	function addStartPoint(point){
+		 map.removeOverlay(startPoint); 
+		 var options={
+				 poiRadius:50,
+				 numPois:1
+		 };
+		new BMap.Geocoder().getLocation(point, function(result) {
+			var poi=result.surroundingPois[0];
+			startPoint=addMarker(point,poi?poi.title:result.address) ;
+			setStartPointText();
+		     }, options); 
+	}
+	function addDestinationPoints(point){
+		var options={
+				 poiRadius:50,
+				 numPois:1
+		 };
+		new BMap.Geocoder().getLocation(point, function(result) {
+			var poi=result.surroundingPois[0];
+			addMarker(point,poi?poi.title:result.address) ;
+			setDestinationPointsText();
+		     }, options); 
+		flag=true;
+	}
+		
+     function removeMarker(e,ee,marker){		 
+			if (marker==startPoint){
+				startPoint=null;
+				var startdiv = document.getElementById("startPoint");
+				startdiv.innerHTML="<b>始发点：</b>";
+				}
+			map.removeOverlay(marker); 
+			setDestinationPointsText();
+     }
+     //面板显示始发点
+	 function setStartPointText(){
+		 var startdiv = document.getElementById("startPoint");
+		 startdiv.innerHTML="<b>始发点：</b>"+startPoint.getLabel().getContent();
+	 }
+	//面板显示配送点
+	 function setDestinationPointsText(){
+		 destinationPoints=new Array();
+		 var ul=document.createElement("ul");
+		 points=map.getOverlays();
+		 for (var i = 0; i < points.length; i++) {
+			if (points[i]==startPoint) {
+				continue;
+			}
+			try {
+				var point=points[i].getPosition();
+				var p={label:points[i].getLabel().getContent(),lng:point.lng,lat:point.lat};
+				destinationPoints.push(p);			
+				var li=document.createElement("li");
+				li.innerHTML =points[i].getLabel().getContent();
+				ul.appendChild(li); 
+			} catch (e) {
+				// TODO: handle exception
+			}
+			
+		}
+		 var destinationdiv=document.getElementById("destinationPoints");
+		 destinationdiv.innerHTML = "<p><b>配送点：</b></p>";
+		 destinationdiv.appendChild(ul);
+		 
+	 }
+    map.addControl(searchbox);  // 将搜索控件添加到地图上
+    //清除结果
+    function clearOverlays(){
+    	map.clearOverlays();
+    	var startdiv = document.getElementById("startPoint");
+		startdiv.innerHTML="<b>始发点：</b>";
+    	var destinationdiv=document.getElementById("destinationPoints");
+		 destinationdiv.innerHTML = "<p><b>配送点：</b></p>";
+		 document.getElementById("result").innerHTML = "";
+		 document.getElementById("lushuOpts").style.display="none";
+		 document.getElementById("history-path").innerHTML = "";
+    }
 	var lushu1;
 	var lushu2;
 	var myIcon = new BMap.Icon("http://api.map.baidu.com/lbsapi/cloud/cms/Mario.png",
 	            {width:128,height:128},{anchor:new BMap.Size(65,128)});    
 	// 实例化一个步行导航用来生成路线
-	var arrPoisAnt=[];
-	var arrPoisGreedy=[];
+	var arrPointAnt=null;
+	var arrPointGreedy=null;
+	var arrPathAnt=null;
+	var arrPathGreedy=null;
 	var max;
-	var strDistance;
+	var strPathAnt='';
+	var strPathGreedy='';
 	function setPoint()
 	{
 		var s;
+		strPathAnt="商家优先：";
+		strPathGreedy="客户优先:"		
+		map.clearOverlays();
 		for(var m=0;m<max;m++)
 			{
 			s=m+1;
 			var mark1 = new BMap.Marker(pointsLocationAnt[m]);
-			map.addOverlay(mark1);
 			var mark2 = new BMap.Marker(pointsLocationGreedy[m]);
+			var lab1 = new BMap.Label(s+":"+pointsNameAnt[m], {offset:new BMap.Size(20,-10),position:pointsLocationAnt[m]});
+			var lab2 = new BMap.Label(s+":"+pointsNameGreedy[m], {offset:new BMap.Size(20,-10), position:pointsLocationGreedy[m]});
+			mark1.setLabel(lab1);
+			mark1.setLabel(lab2);
+			map.addOverlay(mark1);
 			map.addOverlay(mark2);
-			var lab1 = new BMap.Label(s+pointsNameAnt[m], { position:pointsLocationAnt[m] });
-			var lab2 = new BMap.Label(s+pointsNameGreedy[m], { position:pointsLocationGreedy[m] });
-			map.addOverlay(lab1);	
-			map.addOverlay(lab2);
+			
+			if (m<max-1) {
+				strPathAnt+=pointsNameAnt[m]+"->";
+				strPathGreedy+=pointsNameGreedy[m]+"->";
 			}
-		var str1="蚁群算法："+pointsNameAnt[0]+"->"+pointsNameAnt[1];
-		var wkr1 = new BMap.WalkingRoute('广州');
-		   wkr1.search(pointsLocationAnt[0], pointsLocationAnt[1]);
-		   wkr1.setSearchCompleteCallback(function(res) {
-		        if (wkr1.getStatus() == BMAP_STATUS_SUCCESS) {
-		        	var arrPath=res.getPlan(0).getRoute(0).getPath()			        		        					        	
-		        	map.addOverlay(new BMap.Polyline(arrPath, {strokeColor: 'red'}));
-			           map.setViewport(arrPath);
-			           for (var i = 0; i < arrPath.length; i++) {
-			        	   arrPoisAnt.push(new BMap.Point(arrPath[i].lng, arrPath[i].lat));
-			   		}
-		        }
-		  });
-		   var str2="贪心法："+pointsNameGreedy[0]+"->"+pointsNameGreedy[1];
-		   var wkr2 = new BMap.WalkingRoute('广州');
-		   wkr2.search(pointsLocationGreedy[0], pointsLocationGreedy[1]);
-		   wkr2.setSearchCompleteCallback(function(res) {
-		        if (wkr2.getStatus() == BMAP_STATUS_SUCCESS) {
-		        	var arrPath=res.getPlan(0).getRoute(0).getPath()			        		        					        	
-		        	map2.addOverlay(new BMap.Polyline(arrPath, {strokeColor: 'green'}));
-			           map2.setViewport(arrPath);
-			           for (var i = 0; i < arrPath.length; i++) {
-			        	   arrPoisGreedy.push(new BMap.Point(arrPath[i].lng, arrPath[i].lat));
-			   		}
-		        }
-		  }); 
+			else{
+				strPathAnt+=pointsNameAnt[m];
+				strPathGreedy+=pointsNameGreedy[m];
+			}
+			
+			}		
+		/* 	//var str1="蚁群算法："+pointsNameAnt[0]+"->"+pointsNameAnt[1];
+			var wkr1 = new BMap.WalkingRoute(cityName);
+			   wkr1.search(pointsLocationAnt[0], pointsLocationAnt[1]);
+			   wkr1.setSearchCompleteCallback(function(res) {
+			        if (wkr1.getStatus() == BMAP_STATUS_SUCCESS) {
+			        	var arrPath=res.getPlan(0).getRoute(0).getPath()			        		        					        	
+			        	var polyline=new BMap.Polyline(arrPath, {strokeColor: 'red'});
+			        	map.addOverlay(polyline);
+				           //map.setViewport(arrPath);
+				           for (var i = 0; i < arrPath.length; i++) {
+				        	   arrPoisAnt.push(new BMap.Point(arrPath[i].lng, arrPath[i].lat));
+				   		}
+			        }
+			  });
+	 		   //var str2="贪心法："+pointsNameGreedy[0]+"->"+pointsNameGreedy[1];
+			   var wkr2 = new BMap.WalkingRoute(cityName);
+			   wkr2.search(pointsLocationGreedy[0], pointsLocationGreedy[1]);
+			   wkr2.setSearchCompleteCallback(function(res) {
+			        if (wkr2.getStatus() == BMAP_STATUS_SUCCESS) {
+			        	var arrPath=res.getPlan(0).getRoute(0).getPath();
+			        	var polyline=new BMap.Polyline(arrPath, {strokeColor: 'green'});
+			        	map.addOverlay(polyline);
+			        	polyline.hide();
+				           //map.setViewport(arrPath);
+				           for (var i = 0; i < arrPath.length; i++) {
+				        	   arrPoisGreedy.push(new BMap.Point(arrPath[i].lng, arrPath[i].lat));
+				   		}
+			        }
+			  }); */ 
 	}
-	var m=1;
+	var m=0;//点的位置索引
 	function showPath()
 	{
-		if(m<max )
+		if (m<max )
 		{
-			var str1="蚁群算法："+pointsNameAnt[m]+"->"+pointsNameAnt[m+1];
-	  var wkr1 = new BMap.WalkingRoute('广州');
-	   wkr1.search(pointsLocationAnt[m], pointsLocationAnt[m+1]);
-	   wkr1.setSearchCompleteCallback(function(res) {
-	        if (wkr1.getStatus() == BMAP_STATUS_SUCCESS) {
-	        	var arrPath=res.getPlan(0).getRoute(0).getPath()			        		        					        	
-	        	map.addOverlay(new BMap.Polyline(arrPath, {strokeColor: 'red'}));
-		           map.setViewport(arrPath);
-		           for (var i = 0; i < arrPath.length; i++) {
-		        	   arrPoisAnt.push(new BMap.Point(arrPath[i].lng, arrPath[i].lat));
-		   		}
-	        }
-	  }); 
-	   var str2="贪心法："+pointsNameGreedy[m]+"->"+pointsNameGreedy[m+1];
-	   var wkr2 = new BMap.WalkingRoute('广州');
-	   wkr2.search(pointsLocationGreedy[m], pointsLocationGreedy[m+1]);
-	   wkr2.setSearchCompleteCallback(function(res) {
-	        if (wkr2.getStatus() == BMAP_STATUS_SUCCESS) {
-	        	var arrPath=res.getPlan(0).getRoute(0).getPath()			        		        					        	
-	        	map2.addOverlay(new BMap.Polyline(arrPath, {strokeColor: 'green'}));
-		           map2.setViewport(arrPath);
-		           for (var i = 0; i < arrPath.length; i++) {
-		        	   arrPoisGreedy.push(new BMap.Point(arrPath[i].lng, arrPath[i].lat));
-		   		}
-	        }
-	  }); 
-	   m++
-	  }
-		else
-			{
-			 document.getElementById("remarks").innerHTML = strDistance;
-			 lushu1 = new BMapLib.LuShu(map,arrPoisAnt,{
-	               defaultContent:'',
-	               speed:150,
-	               icon:myIcon,
-	              });
-			 lushu2 = new BMapLib.LuShu(map2,arrPoisGreedy,{
-	               defaultContent:'',
-	               speed:150,
-	               icon:myIcon,
-	              });
-			 
-			}
+			//var str1="蚁群算法："+pointsNameAnt[m]+"->"+pointsNameAnt[m+1];
+			var wkr1 = new BMap.WalkingRoute(cityName);
+			 wkr1.search(pointsLocationAnt[m], pointsLocationAnt[m+1]);
+			 wkr1.setSearchCompleteCallback(function(res) {
+			      if (wkr1.getStatus() == BMAP_STATUS_SUCCESS) {
+			      	var arrPath=res.getPlan(0).getRoute(0).getPath()			        		        					        	
+			      	var polyline=new BMap.Polyline(arrPath, {strokeColor: 'red'});
+			        map.addOverlay(polyline);
+				    polyline.hide();
+				    arrPathAnt.push(polyline);
+			          //map.setViewport(arrPath);
+			          for (var i = 0; i < arrPath.length; i++) {
+			       	   arrPointAnt.push(new BMap.Point(arrPath[i].lng, arrPath[i].lat));
+			  		}
+			      }
+			}); 
+			//var str2="贪心法："+pointsNameGreedy[m]+"->"+pointsNameGreedy[m+1];
+			 var wkr2 = new BMap.WalkingRoute(cityName);
+			 wkr2.search(pointsLocationGreedy[m], pointsLocationGreedy[m+1]);
+			 wkr2.setSearchCompleteCallback(function(res) {
+			      if (wkr2.getStatus() == BMAP_STATUS_SUCCESS) {
+			      	var arrPath=res.getPlan(0).getRoute(0).getPath()			        		        					        	
+			      	var polyline=new BMap.Polyline(arrPath, {strokeColor: 'green'});
+			        map.addOverlay(polyline);
+			        arrPathGreedy.push(polyline);
+			         // map.setViewport(arrPath);
+			          for (var i = 0; i < arrPath.length; i++) {
+			       	   arrPointGreedy.push(new BMap.Point(arrPath[i].lng, arrPath[i].lat));
+			  		}
+			          showLuShu();
+			      }
+			}); 
+			 m++
+			 showPath();
+	  }			 
    }
-
-	/* //绑定事件
-	$("run").onclick = function(){
-	    lushu1.start();
-	    lushu2.start();
-	    lushu1.hideInfoWindow();
-	    lushu2.showInfoWindow();
+	function showLuShu(){
+		document.getElementById("result").innerHTML = "<p>"+strPathGreedy+"</p>"+"<p>"+strPathAnt+"</p>";
+		 lushu1 = new BMapLib.LuShu(map,arrPointAnt,{
+              defaultContent:'',
+              speed:150,
+              icon:myIcon,
+             });
+		 lushu2 = new BMapLib.LuShu(map,arrPointGreedy,{
+              defaultContent:'',
+              speed:150,
+              icon:myIcon,
+             });
 	}
-	$("stop").onclick = function(){
-	    lushu1.stop();
-	    lushu2.stop();
-	}
-	$("pause").onclick = function(){
-	    lushu1.pause();
-	    lushu2.pause();
-	}
-	/* $("next").onclick = function(){
-		 showPath();
-	} */	
-	/* function $(element){
-	    return document.getElementById(element);
-	} */ 
+	function selectChange()
+	  {
+	   var radios=document.getElementsByName("radio");
+	   var id;
+	   for(var i=0;i<radios.length;i++)
+	   {
+	    if(radios.item(i).checked) 
+	    {
+	     id=radios.item(i).getAttribute("id"); 
+	     if (id=="customerfirst") {
+			for (var j = 0; j < arrPathGreedy.length; j++) {
+				arrPathGreedy[j].show();
+				arrPathAnt[j].hide();
+			}
+		} else {
+			for (var j = 0; j < arrPathGreedy.length; j++) {
+				arrPathGreedy[j].hide();
+				arrPathAnt[j].show();
+			}
+		}
+	     break;
+	    }
+	    else
+	    {
+	     continue;
+	    }
+	   }  
+	  }
 	
+	//拼接配送信息json
+	function requstMessage(){
+		var startPointJson={label:startPoint.getLabel().getContent(),
+				lng:startPoint.getPosition().lng,
+				lat:startPoint.getPosition().lat};
+		return "startPoint="+JSON.stringify(startPointJson)+
+			"&destinationPoints="+JSON.stringify(destinationPoints);	
+	}
 	var XMLHttpReq; 
 	//创建XMLHttpRequest对象         
 	function createXMLHttpRequest() {  
@@ -351,47 +576,64 @@ function strToJson(str) {
 	            XMLHttpReq = new ActiveXObject("Microsoft.XMLHTTP");  
 	        }   
 	}  
-	//发送请求函数  
-	function sendRequest() {  
+	//get方式发送请求函数  
+	function doTspbyGet(id) {  
 	    createXMLHttpRequest();  
-	    var url = "tsp";  
+	    var url = "tsp?id="+id;  
 	    XMLHttpReq.open("GET", url, true);  
 	    XMLHttpReq.onreadystatechange = processResponse;//指定响应函数  
 	    XMLHttpReq.send(null);  // 发送请求  
+	}
+	//post方式发送请求函数  
+	function doTspbyPost() {		
+		if (flag) {
+			flag=false;
+			var message=requstMessage()
+			createXMLHttpRequest();  
+		    var url = "tsp";  
+		    XMLHttpReq.open("POST", url, true);  
+		    XMLHttpReq.onreadystatechange = processResponse;//指定响应函数  
+		    XMLHttpReq.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+		    XMLHttpReq.send(encodeURI(message));  // 发送请求  
+		}
+	    
 	}  
 	// 处理返回信息函数  
 	function processResponse() {  
 	    if (XMLHttpReq.readyState == 4) { // 判断对象状态  
 	        if (XMLHttpReq.status == 200 ) { // 信息已经成功返回，开始处理信息  
-	       	 var strJson =strToJson(XMLHttpReq.responseText);
-	       	 //var dataObj=eval('('+strJson+')');
-	       	  var antValue = strToJson(strJson.Ant);
-	       	  var greedyValue =  strToJson(strJson.Greedy);
-	       	strDistance='蚁群算法总距离为:'+strJson.dstAnt+',贪心法总距离为:'+strJson.dstGreedy;
-	       	for(var j = 0 ; j <antValue.length-1 ; j++ ){
-	       		var p=new BMap.Point(antValue[j].lng,antValue[j].lat);
-	       		pointsLocationAnt[j]=p;
-	       		pointsNameAnt[j]=antValue[j].name;
-	       	}
-	       	pointsLocationAnt.push(pointsLocationAnt[0]);
-	       	pointsNameAnt.push(pointsNameAnt[0]);
-	       	for(var j = 0 ; j <greedyValue.length-1 ; j++ ){
-	       		var p=new BMap.Point(greedyValue[j].lng,greedyValue[j].lat);
-	       		pointsLocationGreedy[j]=p;
-	       		pointsNameGreedy[j]=greedyValue[j].name;
-	       	}
-	       	pointsLocationGreedy.push(pointsLocationGreedy[0]);
-	       	pointsNameGreedy.push(pointsNameGreedy[0]);
-	       	 //var valueObj=eval('('+values+')');
-	       	 //alert(valueObj[0]);
-	       	// points=eval("(" + pointlist[0] + ")");
-	       	 //alert(points.length);
-	       	 max=pointsLocationAnt.length-1;
-	       	setPoint();
-	       	//setTimeout(showPath, 4000);
-	       	 //var str=pointsNameAnt[0]+"->"+pointsNameAnt[1];
-	       	 //initwkr( str);
-	       	//wkr.search(pointsLocationAnt[0], pointsLocationAnt[1]);
+		       	var strJson =strToJson(XMLHttpReq.responseText);;
+		       	var antValue = strToJson(strJson.Ant);
+		       	var greedyValue =  strToJson(strJson.Greedy);
+		       	pointsNameAnt=new Array();
+		    	pointsNameGreedy=new Array();
+		    	pointsLocationAnt=new Array();
+		    	pointsLocationGreedy=new Array();
+		    	m=0;		       	
+		       	for(var j = 0 ; j <antValue.length-1 ; j++ ){
+		       		var p=new BMap.Point(antValue[j].lng,antValue[j].lat);
+		       		pointsLocationAnt[j]=p;
+		       		pointsNameAnt[j]=antValue[j].label;
+		       	}
+		       	pointsLocationAnt.push(pointsLocationAnt[0]);
+		       	pointsNameAnt.push(pointsNameAnt[0]);
+		       	for(var j = 0 ; j <greedyValue.length-1 ; j++ ){
+		       		var p=new BMap.Point(greedyValue[j].lng,greedyValue[j].lat);
+		       		pointsLocationGreedy[j]=p;
+		       		pointsNameGreedy[j]=greedyValue[j].label;
+		       	}
+		       	pointsLocationGreedy.push(pointsLocationGreedy[0]);
+		       	pointsNameGreedy.push(pointsNameGreedy[0]);
+		       	 max=pointsLocationAnt.length-1;
+	       	     setPoint();
+	       	     strPathAnt+=',总距离为:'+strJson.dstAnt;
+	       	     strPathGreedy+=',总距离为:'+strJson.dstGreedy;
+	       	    arrPathAnt=new Array();
+	  		    arrPathGreedy=new Array();
+	  		    arrPointAnt=new Array();
+	  		    arrPointGreedy=new Array();
+	       	    showPath();
+				document.getElementById("lushuOpts").style.visibility="visible";			 
 	        } else { //页面不正常  
 	            window.alert(XMLHttpReq.status);  
 	        }  

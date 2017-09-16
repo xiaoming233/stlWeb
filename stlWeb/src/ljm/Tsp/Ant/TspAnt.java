@@ -60,7 +60,7 @@ public class TspAnt {
 		}
 	}
 
-	public void solve() {
+	private void solve() {
 		// 迭代MAX_GEN次
 		for (int g = 0; g < MAX_GEN; g++) {
 			// antNum只蚂蚁

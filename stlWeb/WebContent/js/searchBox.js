@@ -238,15 +238,14 @@ SearchBox.prototype.initialize = function(map) {
 SearchBox.prototype.search = function() {
     var key = this.searchBox.value;
     if (key == "") {
-        alert("请输入您要搜索的地址！");
+        alert("请输入您要搜索的地址！"+this.city);
         return;
     }
 
     this.pretender.style.display = "none";
-
     var self = this;
     var geocoder = new BMap.Geocoder();
     geocoder.getPoint(key, function(point) {
-        self.callback(point);
+        self.callback(point,self.searchBox.value);
     }, this.city);
 }
